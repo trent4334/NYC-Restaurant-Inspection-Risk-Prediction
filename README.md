@@ -16,65 +16,89 @@ This project uses open data from the New York City Department of Health and Ment
 
 ## ⚙️ Workflow
 
-### 1. Data Cleaning
-- Selected relevant columns
-- Removed duplicates and missing values
-- Aggregated data to one row per inspection (maximum score per inspection date)
+## 🧹 Step 1: Clean and Prepare the Data
 
-### 2. Feature Engineering
-- Extracted:
-  - Inspection month and weekday
-  - Previous inspection history (count of low/medium/high scores, prior closings)
-  - Borough and cuisine category
+We filtered and cleaned the raw NYC inspection data by:
 
-### 3. Modeling
-- **Logistic Regression:** Baseline model with metadata only
-- **Random Forest:** Extended model including past inspection outcomes
+- Keeping only relevant columns (e.g., score, violation code, grade, date)
+- Standardizing string values in `action` and `inspection_type`
+- Dropping invalid records
+- Aggregating scores per inspection date by taking the max
 
-### 4. Evaluation
-- Compared models using AUC and top-k precision
-- Visualized performance across different thresholds
+📌 **Insight**: Cleaning this data is critical because each inspection may result in multiple rows (violations). Modeling must happen at the inspection level, not the row level.
 
 ---
 
-## 📊 Results
+## 🧪 Step 2: Define Outcome and Filter to Initial Inspections
 
-| Metric              | Logistic Regression | Random Forest |
-|---------------------|---------------------|---------------|
-| **AUC**             | 0.635               | 0.733         |
-| **Top-k Precision** | Lower               | Higher        |
+We isolated initial cycle inspections between 2017 and 2019 and flagged those with scores ≥28 as high-risk (`outcome = TRUE`).
 
-- **Random Forest** significantly outperformed logistic regression
-- Models with prior inspection history proved more effective at identifying high-risk restaurants
-
-> Precision-at-k plots confirm that Random Forest better ranks the riskiest establishments near the top of the list.
+📌 **Insight**: Filtering to only first inspections eliminates noise from follow-ups and gives a cleaner target variable for modeling.
 
 ---
 
-## 📁 Files
+## ⚙️ Step 3: Create Predictive Features
 
-- `assignment6.R`: Core R functions for processing, modeling, and evaluation
-- `assignment6_workflow.Rmd`: RMarkdown file with the full analysis pipeline
-- `Workflow.pdf`: Final rendered report
+We created restaurant-level features such as:
 
----
+- Past counts of low/medium/high scores
+- Count of prior closures
+- Temporal features: `month`, `weekday`
 
-## 🧰 Tools Used
-
-- R (`tidyverse`, `ranger`, `ROCR`)
-- NYC Open Data API
-- RMarkdown for documentation and reporting
+📌 **Insight**: These historical features greatly improved performance, especially for the Random Forest model. It shows how compliance patterns over time are strong predictors.
 
 ---
 
-## 🚀 Future Extensions
+## 🤖 Step 4: Train Predictive Models
 
-- Add hyperparameter tuning for model optimization
-- Explore gradient boosting or ensemble stacking
-- Integrate recent years (2020–2023) to update risk scores
+Two models were trained and tested:
+
+- **Logistic Regression**: Basic categorical/time-based features
+- **Random Forest**: Full feature set with historical stats
+
+Test set: inspections from 2019  
+Performance metrics: AUC, Precision-at-k
+
+📌 **Insight**: Although logistic regression was simpler, it consistently underperformed Random Forest in identifying high-risk restaurants.
 
 ---
 
-## ⚠️ Note
+## 📊 Step 5: Evaluate Models with Precision-at-k
 
-Original file names were retained for compatibility with coursework grading requirements. However, the project reflects practical modeling techniques used in applied data science and public health analytics.
+The plot below shows how precise each model is in identifying true positives among the top-k predictions.
+
+<img width="926" alt="Screenshot 2025-06-05 at 17 22 13" src="https://github.com/user-attachments/assets/65af7176-4a65-42d3-8144-22ab3774e63f" />
+
+📌 **Insight**:
+- Random Forest has substantially higher precision across all values of k.
+- At k = 100, Random Forest had over 55% precision, while Logistic Regression struggled to surpass 40%.
+- This matters because top-k prioritization mirrors real-world inspection constraints.
+
+---
+
+## 🧠 Reflections
+
+### Model Preference
+
+- **Random Forest** is preferable for this task due to better AUC and precision-at-k.
+- Logistic regression could be useful for interpretability but sacrifices performance.
+
+### Bias & Fairness
+
+- **Subjective flags** (like `critical`) may carry implicit bias from inspectors.
+- Model results should be audited regularly to detect and mitigate institutional bias.
+
+### Practical Usage
+
+- Prioritizing by risk score is effective but could overlook **rising risks** in “clean” restaurants.
+- Combining prediction with **complaints data** or **Yelp reviews** could improve targeting.
+
+---
+
+## 📌 Future Directions
+
+- Add **geospatial clustering** to target hotspot zones
+- Implement **online dashboards** for inspector teams
+- Integrate with real-time feedback (complaints, social data)
+
+---
