@@ -74,6 +74,38 @@ The plot below shows how precise each model is in identifying true positives amo
 - At k = 100, Random Forest had over 55% precision, while Logistic Regression struggled to surpass 40%.
 - This matters because top-k prioritization mirrors real-world inspection constraints.
 
+
+## 🔎 Ethical & Policy Analysis
+
+### 1. Are the data fields accurate and unbiased?
+
+The fields in the dataset are likely influenced by some degree of human bias. Certain fields — such as `critical` and `action` — involve **subjective assessments** by inspectors, who may interpret and document violations differently. This introduces room for **implicit bias**. Additionally, the outcome variable (a score ≥ 28) may not fully reflect the true health risk of a restaurant. It depends on inspection thoroughness and consistency, which can vary across inspectors and time.
+
+### 2. Should high scores be the only basis for prioritizing inspections?
+
+Prioritizing by high scores makes sense when the goal is to address the **most severe violations**. However, this approach might overlook **emerging risks** in restaurants with no previous infractions. Other strategies could include:
+- Tracking **inspection frequency**
+- Monitoring **complaint history**
+- Identifying **downward trends** in past performance
+
+These may better reflect underlying health risks before they manifest as high scores.
+
+### 3. What other data or oversight can improve fairness?
+
+To improve fairness and accuracy in inspection targeting, we could integrate:
+- **Customer complaints** from official reports or third-party platforms (Yelp, Tripadvisor)
+- **Health hotline data** and public tips
+- **Sentiment or keyword trends** from online reviews
+
+Oversight could involve:
+- **Audits of inspector reports**
+- **Dual-inspector checks** in ambiguous cases
+- **Feedback loops** that refine predictions based on external health data (e.g., outbreak reports)
+
+Combining diverse signals and accountability mechanisms would lead to a more equitable and proactive inspection strategy.
+
+
+
 ---
 
 ## 🧠 Reflections
