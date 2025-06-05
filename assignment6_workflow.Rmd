@@ -10,7 +10,7 @@ library(tidyverse)
 library(ranger)
 library(ROCR)
 
-setwd("/Users/trentyu/Desktop/Messy Data Machine Learning/Assignment 6")
+setwd("/Users/trentyu/Desktop/Messy Data Machine Learning")
 
 all_data <- read_csv('data/DOHMH_New_York_City_Restaurant_Inspection_Results.csv',
                      na = c("", "NA", "N/A"))
